@@ -129,11 +129,18 @@ exports.deleteMsgForChannel = function(channel, username) {
             logger.info(`${messagesToBeDeleted.length} messages to delete`);
             var allPromises = Promise.all(messagesToBeDeleted.map(msg => new Promise((resolve, reject) => {
                 msg.delete().then(res => {
-                    logger.info(`Message ${res.id} -> Deleted`);
-                    resolve(res);
+                    /*
+                    ------------------------------ FIXME ------------------------------
+                    | Sometimes res is undefined. This is not happening               |
+                    | while testing on small batch of deletion, but this is happening |
+                    | while testing in real conditions.                               |
+                    -------------------------------------------------------------------
+                     */
+                    logger.info(`Message ${msg.id} -> Deleted`);
+                    resolve(msg);
                 }).catch((err) => {
                     logger.error(err);
-                    resolve(undefined)
+                    resolve(undefined);
                 });
             })));
             allPromises.then(deletedMessages => {
