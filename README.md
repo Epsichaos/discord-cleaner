@@ -21,9 +21,8 @@ Delete every single message you ever posted to a specified discord channel.
 ```
 
 ```
-// auth.json
 {
-    token: <DISCORD_TOKEN>
+    token: ${DISCORD_TOKEN}
 }
 ```
 
@@ -32,7 +31,7 @@ DISCORD_TOKEN can be found in network pane of your browser developer tools.
 ## Usage
 
 ```
-    node clean.js --guild "<GUILD_NAME>" --channel "<CHANNEL-NAME>"
+    node clean.js --guild "${GUILD_NAME}" --channel "${CHANNEL_NAME}"
 ```
 
 ## Disclaimer 
