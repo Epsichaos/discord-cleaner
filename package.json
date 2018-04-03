@@ -1,16 +1,16 @@
 {
-  "name": "discord-cleaner",
-  "version": "1.0.0",
-  "description": "Clean discord messages",
-  "main": "clean.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "commander": "^2.14.1",
-    "discord.js": "^11.3.0",
-    "winston": "^2.4.0"
-  }
+    "name": "discord-cleaner",
+    "version": "1.0.0",
+    "description": "Clean discord messages",
+    "main": "clean.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "commander": "^2.14.1",
+        "discord.js": "^11.3.0",
+        "winston": "^2.4.0"
+    }
 }
