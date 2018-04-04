@@ -38,8 +38,10 @@ client.on('ready', function(evt) {
     logger.info(`Connected successfully as — ${client.user.username}`);
     if (program.guild === '') {
         logger.error('Not implemented yet — you should provide both a guild and a channel name')
+        client.destroy();
     } else if (program.channel === '') {
         logger.error('Not implemented yet — you should provide both a guild and a channel name')
+        client.destroy();
     } else {
         logger.info(`Will delete all messages in: ${program.guild} — ${program.channel}`);
         channelsMatchingProvidedName = helpers.getChannelFromGuild(client, program.guild, program.channel)
@@ -58,8 +60,6 @@ client.on('ready', function(evt) {
                 client.destroy();
             }).catch(err => logger.error(err));
     }
-
-
 });
 
 client.on('disconnect', function(evt) {
