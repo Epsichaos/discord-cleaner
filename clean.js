@@ -18,11 +18,16 @@ program
     .option('-g, --guild <guild>', 'Discord guild', '')
     .option('-c, --channel <channel>', 'Discord channel', '')
     .option('-t, --token <token>', 'Discord token', '')
+    .option('--quiet', 'Delete all messages from 2 days before')
     .parse(process.argv);
 
 const client = new discord.Client();
 
-var token = undefined
+var token = undefined;
+var quietMode = false;
+if(program.quiet === true) {
+  quietMode = true;
+}
 if (program.token !== '' && program.token !== undefined) {
     token = program.token;
 } else if (auth.token !== undefined) {
@@ -53,7 +58,7 @@ client.on('ready', function(evt) {
         } else {
             logger.info('Several channels are matching the provided name, messages in all channels will be deleted');
         }
-        helpers.deleteMessages(channelsMatchingProvidedName, client.user.username)
+        helpers.deleteMessages(channelsMatchingProvidedName, client.user.username, quietMode)
             .then(messagesCountArr => {
                 total = messagesCountArr.reduce((total, value) => total + value);
                 logger.info(`Deletion finished`)

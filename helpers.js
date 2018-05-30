@@ -10,6 +10,7 @@ logger.add(logger.transports.Console, {
 });
 logger.level = 'debug';
 
+var DELETE_TIME_LAPSE = 172800000;
 
 class DeletionReport {
     constructor(channel_id, actual, wanted) {
@@ -27,8 +28,8 @@ class DeletionReport {
 }
 
 /**
- * 
- * @param {Client} client 
+ *
+ * @param {Client} client
  */
 exports.getAllChannels = function(client) {
     var guilds = client.guilds;
@@ -40,9 +41,9 @@ exports.getAllChannels = function(client) {
 };
 
 /**
- * 
- * @param {Client} client 
- * @param {String} specifiedGuild 
+ *
+ * @param {Client} client
+ * @param {String} specifiedGuild
  */
 exports.getAllChannelsGuild = function(client, specifiedGuild) {
     var channels = [];
@@ -55,10 +56,10 @@ exports.getAllChannelsGuild = function(client, specifiedGuild) {
 };
 
 /**
- * 
- * @param {Client} client 
- * @param {String} specifiedGuild 
- * @param {String} specifiedChannel 
+ *
+ * @param {Client} client
+ * @param {String} specifiedGuild
+ * @param {String} specifiedChannel
  */
 exports.getChannelFromGuild = function(client, specifiedGuild, specifiedChannel) {
     var channels = [];
@@ -75,7 +76,7 @@ exports.getChannelFromGuild = function(client, specifiedGuild, specifiedChannel)
 };
 
 /**
- * 
+ *
  * @param {TextChannel} textChannel
  * @param {String} username
  * @param {Message} messageBefore
@@ -118,16 +119,19 @@ exports.fetchMessages = function(textChannel, username, messageBefore, lengthBef
 };
 
 /**
- * 
+ *
  * @param {TextChannel} channel
  * @param {String} username
+ * @param {Boolean} quietMode
  * @returns {DeletionReport}
  */
-exports.deleteMsgForChannel = function(channel, username) {
+exports.deleteMsgForChannel = function(channel, username, quietMode) {
     return new Promise((resolve, reject) => {
         this.fetchMessages(channel, username).then((messagesToBeDeleted) => {
             logger.info(`${messagesToBeDeleted.length} messages to delete`);
             var allPromises = Promise.all(messagesToBeDeleted.map(msg => new Promise((resolve, reject) => {
+              var messageSentMoreThanTwoDaysAgo = Date.now() - msg.createdAt.getTime() >= DELETE_TIME_LAPSE;
+              if(quietMode === false || messageSentMoreThanTwoDaysAgo) {
                 msg.delete().then(res => {
                     /*
                     ------------------------------ FIXME ------------------------------
@@ -142,6 +146,9 @@ exports.deleteMsgForChannel = function(channel, username) {
                     logger.error(err);
                     resolve(undefined);
                 });
+              } else {
+                resolve(undefined);
+              }
             })));
             allPromises.then(deletedMessages => {
                 var filteredResults = deletedMessages.filter(msg => msg !== undefined);
@@ -158,14 +165,15 @@ exports.deleteMsgForChannel = function(channel, username) {
 }
 
 /**
- * 
+ *
  * @param {TextChannel[]} textChannels
  * @param {String} username
+ * @param {Boolean} quietMode
  * @returns {DeletionReport[]}
  */
-exports.deleteMessages = function(textChannels, username) {
+exports.deleteMessages = function(textChannels, username, quietMode) {
     return new Promise((resolve, reject) => {
-        var deletions = Promise.all(textChannels.map(chan => this.deleteMsgForChannel(chan, username)));
+        var deletions = Promise.all(textChannels.map(chan => this.deleteMsgForChannel(chan, username, quietMode)));
         deletions.then(reports => {
             reports.map(report => {
                 if (report.wanted !== 0) {
