@@ -49,7 +49,11 @@ exports.getAllChannelsGuild = function(client, specifiedGuild) {
     var channels = [];
     client.guilds.forEach(function(guild) {
         if (guild.name === specifiedGuild) {
-            channels = guild.channels;
+            guild.channels.forEach(function(c) {
+              if(c.type === 'text') {
+                channels.push(c);
+              }
+            });
         }
     });
     return channels;
