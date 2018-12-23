@@ -13,8 +13,8 @@ logger.level = 'debug';
 var DELETE_TIME_LAPSE = 172800000;
 
 class DeletionReport {
-    constructor(channel_id, actual, wanted) {
-        this.channel_id = channel_id;
+    constructor(channel, actual, wanted) {
+        this.channel = channel;
         this.actual = actual;
         this.wanted = wanted;
     }
@@ -152,7 +152,7 @@ exports.deleteMsgForChannel = function(channel, username, quietMode) {
             })));
             allPromises.then(deletedMessages => {
                 var filteredResults = deletedMessages.filter(msg => msg !== undefined);
-                resolve(new DeletionReport(channel.id, filteredResults.length, messagesToBeDeleted.length));
+                resolve(new DeletionReport(channel, filteredResults.length, messagesToBeDeleted.length));
             }).catch((err) => {
                 logger.error(err.message);
                 reject(err);
@@ -177,9 +177,9 @@ exports.deleteMessages = function(textChannels, username, quietMode) {
         deletions.then(reports => {
             reports.map(report => {
                 if (report.wanted !== 0) {
-                    logger.info(`Channel: ${report.channel_id} -> ${report.actual}/${report.wanted} messages deleted (${report.perCent()}%)`);
+                    logger.info(`Channel: ${report.channel.name} (${report.channel.id}) -> ${report.actual}/${report.wanted} messages deleted (${report.perCent()}%)`);
                 } else {
-                    logger.info(`Channel: ${report.channel_id} -> No message to delete`);
+                    logger.info(`Channel: ${report.channel.name} (${report.channel.id}) -> No message to delete`);
                 }
             });
             resolve(reports);
