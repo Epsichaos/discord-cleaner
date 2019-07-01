@@ -45,8 +45,18 @@ client.on('ready', function(evt) {
         logger.error('Not implemented yet — you should provide both a guild and a channel name')
         client.destroy();
     } else if (program.channel === '') {
-        logger.error('Not implemented yet — you should provide both a guild and a channel name')
-        client.destroy();
+        logger.info(`Will delete all messages in: ${program.guild}`)
+        channels = helpers.getAllChannelsGuild(client, program.guild)
+        channels.forEach(c => {
+          logger.info(`Will delete messages for channel ${c.name}`)
+          helpers.deleteMessages([c], client.user.username, quietMode)
+              .then(messagesCountArr => {
+                  logger.info(`Deletion finished for channel ${c.name}`)
+              }).catch(err => {
+                logger.error(err);
+              });
+          logger.info(`Deletion finished for channel ${c.name}`)
+        });
     } else {
         logger.info(`Will delete all messages in: ${program.guild} — ${program.channel}`);
         channelsMatchingProvidedName = helpers.getChannelFromGuild(client, program.guild, program.channel)
@@ -63,7 +73,10 @@ client.on('ready', function(evt) {
                 total = messagesCountArr.reduce((total, value) => total + value);
                 logger.info(`Deletion finished`)
                 client.destroy();
-            }).catch(err => logger.error(err));
+            }).catch(err => {
+              logger.error(err);
+              client.destroy();
+          });
     }
 });
 

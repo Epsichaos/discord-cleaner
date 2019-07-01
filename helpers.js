@@ -31,10 +31,10 @@ class DeletionReport {
  *
  * @param {Client} client
  */
-exports.getAllChannels = function(client) {
+exports.getAllChannels = function (client) {
     var guilds = client.guilds;
     var channelsByGuilds = {};
-    guilds.forEach(function(guild) {
+    guilds.forEach(function (guild) {
         channelsByGuilds[guild.id] = guild.channels;
     });
     return guilds;
@@ -45,14 +45,14 @@ exports.getAllChannels = function(client) {
  * @param {Client} client
  * @param {String} specifiedGuild
  */
-exports.getAllChannelsGuild = function(client, specifiedGuild) {
+exports.getAllChannelsGuild = function (client, specifiedGuild) {
     var channels = [];
-    client.guilds.forEach(function(guild) {
+    client.guilds.forEach(function (guild) {
         if (guild.name === specifiedGuild) {
-            guild.channels.forEach(function(c) {
-              if(c.type === 'text') {
-                channels.push(c);
-              }
+            guild.channels.forEach(function (c) {
+                if (c.type === 'text') {
+                    channels.push(c);
+                }
             });
         }
     });
@@ -65,11 +65,11 @@ exports.getAllChannelsGuild = function(client, specifiedGuild) {
  * @param {String} specifiedGuild
  * @param {String} specifiedChannel
  */
-exports.getChannelFromGuild = function(client, specifiedGuild, specifiedChannel) {
+exports.getChannelFromGuild = function (client, specifiedGuild, specifiedChannel) {
     var channels = [];
-    client.guilds.forEach(function(g) {
+    client.guilds.forEach(function (g) {
         if (g.name === specifiedGuild) {
-            g.channels.forEach(function(c) {
+            g.channels.forEach(function (c) {
                 if (c.name == specifiedChannel) {
                     channels.push(c);
                 }
@@ -86,7 +86,7 @@ exports.getChannelFromGuild = function(client, specifiedGuild, specifiedChannel)
  * @param {Message} messageBefore
  * @return {Message[]} Messages of connected user for channel
  */
-exports.fetchMessages = function(textChannel, username, messageBefore, lengthBefore) {
+exports.fetchMessages = function (textChannel, username, messageBefore, lengthBefore) {
     var limit = 100;
     var allMessages = [];
     var lastMsg;
@@ -129,30 +129,30 @@ exports.fetchMessages = function(textChannel, username, messageBefore, lengthBef
  * @param {Boolean} quietMode
  * @returns {DeletionReport}
  */
-exports.deleteMsgForChannel = function(channel, username, quietMode) {
+exports.deleteMsgForChannel = function (channel, username, quietMode) {
     return new Promise((resolve, reject) => {
         this.fetchMessages(channel, username).then((messagesToBeDeleted) => {
             logger.info(`${messagesToBeDeleted.length} messages to delete`);
             var allPromises = Promise.all(messagesToBeDeleted.map(msg => new Promise((resolve, reject) => {
-              var messageSentMoreThanTwoDaysAgo = Date.now() - msg.createdAt.getTime() >= DELETE_TIME_LAPSE;
-              if(quietMode === false || messageSentMoreThanTwoDaysAgo) {
-                msg.delete().then(res => {
-                    /*
-                    ------------------------------ FIXME ------------------------------
-                    | Sometimes res is undefined. This is not happening               |
-                    | while testing on small batch of deletion, but this is happening |
-                    | while testing in real conditions.                               |
-                    -------------------------------------------------------------------
-                     */
-                    logger.info(`Message ${msg.id} -> Deleted`);
-                    resolve(msg);
-                }).catch((err) => {
-                    logger.error(err);
+                var messageSentMoreThanTwoDaysAgo = Date.now() - msg.createdAt.getTime() >= DELETE_TIME_LAPSE;
+                if (quietMode === false || messageSentMoreThanTwoDaysAgo) {
+                    msg.delete().then(res => {
+                        /*
+                        ------------------------------ FIXME ------------------------------
+                        | Sometimes res is undefined. This is not happening               |
+                        | while testing on small batch of deletion, but this is happening |
+                        | while testing in real conditions.                               |
+                        -------------------------------------------------------------------
+                         */
+                        logger.info(`Message ${msg.id} -> Deleted`);
+                        resolve(msg);
+                    }).catch((err) => {
+                        logger.error(err);
+                        resolve(undefined);
+                    });
+                } else {
                     resolve(undefined);
-                });
-              } else {
-                resolve(undefined);
-              }
+                }
             })));
             allPromises.then(deletedMessages => {
                 var filteredResults = deletedMessages.filter(msg => msg !== undefined);
@@ -175,7 +175,7 @@ exports.deleteMsgForChannel = function(channel, username, quietMode) {
  * @param {Boolean} quietMode
  * @returns {DeletionReport[]}
  */
-exports.deleteMessages = function(textChannels, username, quietMode) {
+exports.deleteMessages = function (textChannels, username, quietMode) {
     return new Promise((resolve, reject) => {
         var deletions = Promise.all(textChannels.map(chan => this.deleteMsgForChannel(chan, username, quietMode)));
         deletions.then(reports => {
